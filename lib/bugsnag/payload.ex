@@ -27,6 +27,7 @@ defmodule Bugsnag.Payload do
       |> add_user(Keyword.get(options, :user))
       |> add_device(Keyword.get(options, :os_version), Keyword.get(options, :hostname))
       |> add_metadata(Keyword.get(options, :metadata))
+      |> add_notify_release_stages(Keyword.get(options, :notify_release_stages, Application.get_env(:bugsnag, :notify_release_stages, ["development", "production"])))
       |> add_release_stage(Keyword.get(options, :release_stage, Application.get_env(:bugsnag, :release_stage, "production")))
 
     Map.put payload, :events, [event]
@@ -46,6 +47,8 @@ defmodule Bugsnag.Payload do
   defp add_severity(event, _), do: Map.put(event, :severity, "error")
 
   defp add_release_stage(event, release_stage), do: Map.put(event, :app, %{releaseStage: release_stage})
+
+  defp add_release_stage(event, notify_release_stages), do: Map.put(event, :app, %{notifyReleaseStages: notify_release_stages})
 
   defp add_context(event, nil), do: event
   defp add_context(event, context), do: Map.put(event, :context, context)
